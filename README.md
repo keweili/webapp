@@ -1,2 +1,2 @@
-# webapp
-An example web application 
+# Webapp
+An example serverless Web Application on AWS
