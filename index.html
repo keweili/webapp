@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AWS Serverless Task Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .card { background: #f4f4f4; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        input, select, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { background: #232f3e; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>My Cloud Task Manager</h2>
+
+    <!-- CREATE TASK -->
+    <div class="card">
+        <h3>Create Task</h3>
+        <input type="text" id="taskName" placeholder="Task Name (e.g., Cook Dinner)">
+        <label>Completed:</label>
+        <select id="taskCompleted">
+            <option value="false" selected>false</option>
+            <option value="true">true</option>
+        </select>
+        <button onclick="createTask()">Create Task</button>
+    </div>
+
+    <!-- UPDATE TASK -->
+    <div class="card">
+        <h3>Update Task</h3>
+        <input type="text" id="updateId" placeholder="Task ID">
+        <input type="text" id="updateName" placeholder="New Name">
+        <label>Completed:</label>
+        <select id="updateCompleted">
+            <option value="false" selected>false</option>
+            <option value="true">true</option>
+        </select>
+        <button onclick="updateTask()">Update Task</button>
+    </div>
+
+    <!-- VIEW TASKS -->
+    <div class="card">
+        <h3>Tasks List</h3>
+        <button onclick="getTasks()">Refresh Tasks</button>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        const API_URL = "https://zuvvt44nu3.execute-api.us-east-2.amazonaws.com/Production";
+
+        async function getTasks() {
+            const res = await fetch(`${API_URL}/mydata`); 
+            const tasks = await res.json();
+            const list = document.getElementById("taskList");
+            list.innerHTML = "";
+            tasks.forEach(task => {
+                let li = document.createElement("li");
+                li.innerHTML = `<b>ID:</b> ${task.id} | <b>Name:</b> ${task.name} | <b>Completed:</b> ${task.completed}`;
+                list.appendChild(li);
+            });
+        }
+
+        async function createTask() {
+            const name = document.getElementById("taskName").value;
+            const completed = document.getElementById("taskCompleted").value === "true";
+
+            const res = await fetch(`${API_URL}/mydata`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, completed })
+            });
+            const data = await res.json();
+            alert(data.message);
+            getTasks();
+        }
+
+        async function updateTask() {
+            const id = document.getElementById("updateId").value;
+            const name = document.getElementById("updateName").value;
+            const completed = document.getElementById("updateCompleted").value === "true";
+
+            const res = await fetch(`${API_URL}/mydata`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, name, completed })
+            });
+            const data = await res.json();
+            alert(data.message);
+            getTasks();
+        }
+    </script>
+</body>
+</html>
